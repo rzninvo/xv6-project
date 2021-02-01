@@ -538,3 +538,12 @@ int getparentID(void)
   struct proc* curproc = myproc();
   return curproc->parent->pid; 
 }
+
+int* getchildren(void)
+{
+  struct proc* curproc = myproc();
+  struct proc* p;
+  int* children;
+  int size = 0;
+  return children;
+}

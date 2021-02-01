@@ -94,3 +94,8 @@ int sys_getparentID(void)
 {
   return getparentID();
 }
+
+int sys_getchildren(void)
+{
+  return getchildren();
+}
