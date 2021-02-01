@@ -539,11 +539,19 @@ int getparentID(void)
   return curproc->parent->pid; 
 }
 
-int* getchildren(void)
+int getchildren(void)
 {
   struct proc* curproc = myproc();
   struct proc* p;
-  int* children;
-  int size = 0;
+  
+  int children = 0;
+
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++)
+  {
+    if (p->parent->pid == curproc->pid)
+    {
+        children = children * 10 +  p->pid;
+    }
+  }
   return children;
 }

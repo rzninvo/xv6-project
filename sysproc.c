@@ -95,7 +95,7 @@ int sys_getparentID(void)
   return getparentID();
 }
 
-char* sys_getchildren(void)
+int sys_getchildren(void)
 {
   return getchildren();
 }

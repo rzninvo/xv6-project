@@ -8,16 +8,16 @@ int main()
         if (fork())
             if(fork())
             {
-                printf(1, "This is proccess %d and children are", getpid());
-                char* children = getchildren();
-                int i = 0;
-                while (1)
+                printf(1, "This is proccess %d and children are ", getpid());
+                int children = getchildren();
+                while (children != 0)
                 {
-                    if (children[i] != 'z')
-                        printf(1, children[i]);
-                    else
-                        break;
+                    printf(1, "%d", children % 10);
+                    children /= 10;
+                    if (children != 0)
+                        printf(1,"-");
                 }
+                printf(1,"\n");
             }
     return 0;
 }
