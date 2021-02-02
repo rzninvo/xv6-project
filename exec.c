@@ -19,6 +19,8 @@ exec(char *path, char **argv)
   pde_t *pgdir, *oldpgdir;
   struct proc *curproc = myproc();
 
+  curproc->syscallcounter[7]++;
+
   begin_op();
 
   if((ip = namei(path)) == 0){

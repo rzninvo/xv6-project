@@ -2,13 +2,38 @@
 #include "stat.h"
 #include "user.h"
 
-int main()
+int main(int argc, char *argv[])
 {
-    if (fork())
-        if (fork())
-            if(fork())
-                if(fork());
-    printf(1,"this is proccess %d and the system call %d was called %d times\n"
-            , getpid(), 1, getsyscallcounter(1));   
+    if (fork()){
+        if (fork()){
+            if(fork()){
+                if(fork()){
+                    getchildren();
+                    getparentID();
+                    int *num;
+                    *num = atoi(argv[1]);
+                    printf(1,"this is proccess %d and the system call %d was called %d times\n"
+                        , getpid(), *num, getsyscallcounter(*num));   
+                }
+                else
+                {
+                    exit();
+                }
+            }
+            else
+            {
+                exit();
+            }
+        }
+        else
+        {
+            exit();
+        }           
+    }
+    else
+    {
+        exit();
+    }
+    
     return 0;
 }

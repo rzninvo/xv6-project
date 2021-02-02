@@ -100,7 +100,10 @@ int sys_getchildren(void)
   return getchildren();
 }
 
-int sys_getsyscallcounter(int num)
+int sys_getsyscallcounter(void)
 {
+  int num;
+  if(argint(0, &num) < 0)
+    return -1;
   return getsyscallcounter(num);
 }

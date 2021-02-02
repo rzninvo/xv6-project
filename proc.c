@@ -7,7 +7,7 @@
 #include "proc.h"
 #include "spinlock.h"
 
-#define SYSCOUNT 23
+#define SYSCOUNT 25
 
 struct {
   struct spinlock lock;
@@ -113,7 +113,8 @@ found:
   p->context = (struct context*)sp;
   memset(p->context, 0, sizeof *p->context);
   p->context->eip = (uint)forkret;
-  for (int i = 0 ; i < SYSCOUNT; i++)
+
+  for (int i = 0 ; i < 25; i++)
   {
     p->syscallcounter[i] = 0;
   }
@@ -190,6 +191,10 @@ fork(void)
   struct proc *np;
   struct proc *curproc = myproc();
 
+
+  curproc->syscallcounter[1]++;
+
+
   // Allocate process.
   if((np = allocproc()) == 0){
     return -1;
@@ -223,7 +228,6 @@ fork(void)
   np->state = RUNNABLE;
 
   release(&ptable.lock);
-
   return pid;
 }
 
@@ -237,6 +241,9 @@ exit(void)
   struct proc *p;
   int fd;
 
+  curproc->syscallcounter[2]++;
+  for (int i = 0; i < 25; i++)
+    curproc->syscallcounter[i] = 0;
   if(curproc == initproc)
     panic("init exiting");
 
@@ -282,6 +289,7 @@ wait(void)
   int havekids, pid;
   struct proc *curproc = myproc();
   
+  curproc->syscallcounter[3]++;
   acquire(&ptable.lock);
   for(;;){
     // Scan through table looking for exited children.
@@ -486,6 +494,8 @@ int
 kill(int pid)
 {
   struct proc *p;
+  struct proc *curproc = myproc();
+  curproc->syscallcounter[6]++;
 
   acquire(&ptable.lock);
   for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
@@ -542,6 +552,7 @@ procdump(void)
 int getparentID(void)
 {
   struct proc* curproc = myproc();
+  curproc->syscallcounter[22]++;
   return curproc->parent->pid; 
 }
 
@@ -550,6 +561,8 @@ int getchildren(void)
   struct proc* curproc = myproc();
   struct proc* p;
   
+  curproc->syscallcounter[23]++;
+
   int children = 0;
 
   for(p = ptable.proc; p < &ptable.proc[NPROC]; p++)
@@ -565,5 +578,6 @@ int getchildren(void)
 int getsyscallcounter(int num)
 {
   struct proc* curproc = myproc();
-  return curproc->syscallcounter[num];
+  curproc->syscallcounter[24]++;
+  return (curproc->syscallcounter[num]);
 }
