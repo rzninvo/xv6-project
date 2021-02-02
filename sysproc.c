@@ -99,3 +99,8 @@ int sys_getchildren(void)
 {
   return getchildren();
 }
+
+int sys_getsyscallcounter(int num)
+{
+  return getsyscallcounter(num);
+}

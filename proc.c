@@ -7,6 +7,8 @@
 #include "proc.h"
 #include "spinlock.h"
 
+#define SYSCOUNT 23
+
 struct {
   struct spinlock lock;
   struct proc proc[NPROC];
@@ -111,6 +113,10 @@ found:
   p->context = (struct context*)sp;
   memset(p->context, 0, sizeof *p->context);
   p->context->eip = (uint)forkret;
+  for (int i = 0 ; i < SYSCOUNT; i++)
+  {
+    p->syscallcounter[i] = 0;
+  }
 
   return p;
 }
@@ -554,4 +560,10 @@ int getchildren(void)
     }
   }
   return children;
+}
+
+int getsyscallcounter(int num)
+{
+  struct proc* curproc = myproc();
+  return curproc->syscallcounter[num];
 }
