@@ -24,3 +24,5 @@
 #define SYS_getchildren 23
 #define SYS_getsyscallcounter 24
 #define SYS_setPriority 25
+#define SYS_setQueuenum 26
+#define SYS_changePolicy 27

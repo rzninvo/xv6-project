@@ -27,6 +27,8 @@ int getparentID(void);
 int getchildren(void);
 int getsyscallcounter(int);
 int setPriority(int, int);
+int setQueuenum(int, int);
+int changePolicy(int);
 
 // ulib.c
 int stat(const char*, struct stat*);

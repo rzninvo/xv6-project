@@ -10,6 +10,7 @@
 struct {
   struct spinlock lock;
   struct proc proc[NPROC];
+  int TMODE;
 } ptable;
 
 static struct proc *initproc;
@@ -94,6 +95,7 @@ found:
   p->sleepingtime = 0;
   p->waittime = 0;
   p->quantumtime = 0;
+  p->queuenum = 0;
 
   release(&ptable.lock);
 
@@ -280,6 +282,7 @@ exit(void)
 
   // Jump into the scheduler, never to return.
   curproc->state = ZOMBIE;
+  curproc->terminationtime = ticks;
   sched();
   panic("zombie exit");
 }
@@ -317,6 +320,8 @@ wait(void)
         p->runtime = 0;
         p->waittime = 0;
         p->creationtime = 0;
+        p->quantumtime = 0;
+        p->queuenum = 0;
         p->state = UNUSED;
         release(&ptable.lock);
         return pid;
@@ -356,12 +361,12 @@ scheduler(void)
     // Loop over process table looking for process to run.
     acquire(&ptable.lock);
     for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
-      if (TMODE == ROUNDROBIN || TMODE == XV6DEFAULT)
+      if (ptable.TMODE == ROUNDROBIN || ptable.TMODE == XV6DEFAULT)
       {
         if(p->state != RUNNABLE)
           continue;
       }
-      else if (TMODE == PRIORITY)
+      else if (ptable.TMODE == PRIORITY)
       {
         struct proc *hp = 0;
         struct proc *p1 = 0;
@@ -376,6 +381,43 @@ scheduler(void)
 
         if(hp != 0)
           p = hp;
+      }
+      else if (ptable.TMODE == MLQ)
+      {
+        if(p->state != RUNNABLE)
+           continue;
+        if(p->queuenum == 1)
+        {
+          struct proc *hp = 0;
+          struct proc *p1 = 0;
+
+          if(p->state != RUNNABLE)
+            continue;
+          hp = p;
+          for(p1 = ptable.proc; p1 < &ptable.proc[NPROC]; p1++){
+            if((p1->state == RUNNABLE) && (hp->priority > p1->priority))
+              hp = p1;
+            }
+
+          if(hp != 0)
+            p = hp;
+        }
+        if(p->queuenum == 2)
+        {
+          struct proc *hp = 0;
+          struct proc *p1 = 0;
+
+          if(p->state != RUNNABLE)
+            continue;
+          hp = p;
+          for(p1 = ptable.proc; p1 < &ptable.proc[NPROC]; p1++){
+            if((p1->state == RUNNABLE) && (hp->priority < p1->priority))
+              hp = p1;
+            }
+
+          if(hp != 0)
+            p = hp;
+        }
       }
 
       // Switch to chosen process.  It is the process's job
@@ -640,4 +682,31 @@ int getsyscallcounter(int num)
   struct proc* curproc = myproc();
   curproc->syscallcounter[24]++;
   return (curproc->syscallcounter[num]);
+}
+
+int setQueuenum(int pid, int queuenum)
+{
+  struct proc *p;
+
+  acquire(&ptable.lock);
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+    if(p->pid == pid) {
+        p->queuenum = queuenum;
+        break;
+    }
+  }
+  release(&ptable.lock);
+
+  return pid;
+}
+
+int getmode(void)
+{
+  return ptable.TMODE;
+}
+
+int changePolicy(int mode)
+{
+  ptable.TMODE = mode;
+  return ptable.TMODE;
 }

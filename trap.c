@@ -51,9 +51,14 @@ trap(struct trapframe *tf)
       if(cpuid() == 0){
         acquire(&tickslock);
         updatetime();
-        if (TMODE == ROUNDROBIN)
+        if (getmode() == ROUNDROBIN)
         {
-          if (myproc()->quantumtime < 10)
+          if (myproc()->quantumtime < QUANTUM)
+            myproc()->quantumtime++;
+        }
+        else if ((getmode() == MLQ) && (myproc()->queuenum == 3))
+        {
+          if (myproc()->quantumtime < QUANTUM)
             myproc()->quantumtime++;
         }
         ticks++;

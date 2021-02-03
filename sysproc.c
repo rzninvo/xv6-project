@@ -117,3 +117,21 @@ int sys_setPriority(void)
     return -1;
   return setPriority(pid, priority);
 }
+
+int sys_setQueuenum(void)
+{
+  int pid, queuenum;
+  if(argint(0, &pid) < 0)
+    return -1;
+  if(argint(1, &queuenum) < 0)
+    return -1;
+  return setQueuenum(pid, queuenum);
+}
+
+int sys_changePolicy(void)
+{
+  int policy;
+  if(argint(0, &policy) < 0)
+    return -1;
+  return changePolicy(policy);
+}

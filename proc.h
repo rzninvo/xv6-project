@@ -55,11 +55,14 @@ struct proc {
   int sleepingtime;
   int runtime;
   int waittime;
+  int terminationtime;
   int priority;
   int quantumtime;
+  int queuenum;
 };
 
 void updatetime(void);
+int getmode(void);
 
 // Process memory is laid out contiguously, low addresses first:
 //   text

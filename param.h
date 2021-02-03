@@ -12,6 +12,4 @@
 #define NBUF         (MAXOPBLOCKS*3)  // size of disk block cache
 #define FSSIZE       1000  // size of file system in blocks
 #define QUANTUM      10  // quantum time for round-robin scheduling
-#define SYSCOUNT   26
-
-int TMODE = 1;
+#define SYSCOUNT   28
