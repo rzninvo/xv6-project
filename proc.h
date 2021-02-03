@@ -33,7 +33,7 @@ struct context {
 };
 
 enum procstate { UNUSED, EMBRYO, SLEEPING, RUNNABLE, RUNNING, ZOMBIE };
-enum schedstate { ROUNDROBIN, PRIORITY};
+enum schedstate { XV6DEFAULT, ROUNDROBIN, PRIORITY, MLQ};
 
 // Per-process state
 struct proc {
@@ -56,6 +56,7 @@ struct proc {
   int runtime;
   int waittime;
   int priority;
+  int quantumtime;
 };
 
 void updatetime(void);

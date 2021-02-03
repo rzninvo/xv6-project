@@ -7,9 +7,6 @@
 #include "proc.h"
 #include "spinlock.h"
 
-#define SYSCOUNT 25
-const int TMODE = PRIORITY;
-
 struct {
   struct spinlock lock;
   struct proc proc[NPROC];
@@ -96,6 +93,7 @@ found:
   p->runtime = 0;
   p->sleepingtime = 0;
   p->waittime = 0;
+  p->quantumtime = 0;
 
   release(&ptable.lock);
 
@@ -358,7 +356,7 @@ scheduler(void)
     // Loop over process table looking for process to run.
     acquire(&ptable.lock);
     for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
-      if (TMODE == ROUNDROBIN)
+      if (TMODE == ROUNDROBIN || TMODE == XV6DEFAULT)
       {
         if(p->state != RUNNABLE)
           continue;
@@ -595,7 +593,7 @@ void updatetime(void)
 }
 
 // Change Process priority
-int chpr(int pid, int priority)
+int setPriority(int pid, int priority)
 {
   struct proc *p;
 
