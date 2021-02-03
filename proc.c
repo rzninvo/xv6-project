@@ -8,6 +8,7 @@
 #include "spinlock.h"
 
 #define SYSCOUNT 25
+const int TMODE = PRIORITY;
 
 struct {
   struct spinlock lock;
@@ -90,6 +91,11 @@ allocproc(void)
 found:
   p->state = EMBRYO;
   p->pid = nextpid++;
+  p->priority = 3; // default priority
+  p->creationtime = ticks;
+  p->runtime = 0;
+  p->sleepingtime = 0;
+  p->waittime = 0;
 
   release(&ptable.lock);
 
@@ -308,6 +314,11 @@ wait(void)
         p->parent = 0;
         p->name[0] = 0;
         p->killed = 0;
+        p->priority = 0;
+        p->sleepingtime = 0;
+        p->runtime = 0;
+        p->waittime = 0;
+        p->creationtime = 0;
         p->state = UNUSED;
         release(&ptable.lock);
         return pid;
@@ -347,8 +358,27 @@ scheduler(void)
     // Loop over process table looking for process to run.
     acquire(&ptable.lock);
     for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
-      if(p->state != RUNNABLE)
-        continue;
+      if (TMODE == ROUNDROBIN)
+      {
+        if(p->state != RUNNABLE)
+          continue;
+      }
+      else if (TMODE == PRIORITY)
+      {
+        struct proc *hp = 0;
+        struct proc *p1 = 0;
+
+        if(p->state != RUNNABLE)
+           continue;
+        hp = p;
+        for(p1 = ptable.proc; p1 < &ptable.proc[NPROC]; p1++){
+          if((p1->state == RUNNABLE) && (hp->priority > p1->priority))
+            hp = p1;
+          }
+
+        if(hp != 0)
+          p = hp;
+      }
 
       // Switch to chosen process.  It is the process's job
       // to release ptable.lock and then reacquire it
@@ -546,6 +576,39 @@ procdump(void)
     }
     cprintf("\n");
   }
+}
+
+// Update runtime
+void updatetime(void)
+{
+  struct proc *p;
+  acquire(&ptable.lock);
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+    if (p->state == SLEEPING)
+      p->sleepingtime++;
+    if (p->state == RUNNABLE)
+      p->waittime++;
+    if (p->state == RUNNING)
+      p->runtime++;
+  }
+  release(&ptable.lock);
+}
+
+// Change Process priority
+int chpr(int pid, int priority)
+{
+  struct proc *p;
+
+  acquire(&ptable.lock);
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+    if(p->pid == pid) {
+        p->priority = priority;
+        break;
+    }
+  }
+  release(&ptable.lock);
+
+  return pid;
 }
 
 int getparentID(void)
