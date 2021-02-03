@@ -184,6 +184,7 @@ UPROGS=\
 	_getparentIDtest\
 	_getchildrentest\
 	_getsyscallcountertest\
+	_roundRobinTest\
 
 fs.img: mkfs README $(UPROGS)
 	./mkfs fs.img README $(UPROGS)
@@ -257,6 +258,7 @@ EXTRA=\
 	getparentIDtest.c\
 	getchildrentest.c\
 	getsyscallcountertest.c\
+	roundRobinTest.c\
 	README dot-bochsrc *.pl toc.* runoff runoff1 runoff.list\
 	.gdbinit.tmpl gdbutil\
 

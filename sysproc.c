@@ -135,3 +135,18 @@ int sys_changePolicy(void)
     return -1;
   return changePolicy(policy);
 }
+int sys_waitreg(void)
+{
+  int *creationtime, *runtime, *waittime, *sleepingtime, *terminationtime;
+  if(argint(0, creationtime) < 0)
+    return -1;
+  if(argint(1, runtime) < 0)
+    return -1;
+  if(argint(2, waittime) < 0)
+    return -1;
+  if(argint(3, sleepingtime) < 0)
+    return -1;
+  if(argint(4, terminationtime) < 0)
+    return -1;
+  return waitreg(creationtime, runtime, waittime, sleepingtime, terminationtime);
+}

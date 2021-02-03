@@ -10,8 +10,9 @@
 struct {
   struct spinlock lock;
   struct proc proc[NPROC];
-  int TMODE;
 } ptable;
+
+int TMODE = 0;
 
 static struct proc *initproc;
 
@@ -96,6 +97,7 @@ found:
   p->waittime = 0;
   p->quantumtime = 0;
   p->queuenum = 0;
+  p->terminationtime = 0;
 
   release(&ptable.lock);
 
@@ -322,6 +324,63 @@ wait(void)
         p->creationtime = 0;
         p->quantumtime = 0;
         p->queuenum = 0;
+        p->terminationtime = 0;
+        p->state = UNUSED;
+        release(&ptable.lock);
+        return pid;
+      }
+    }
+
+    // No point waiting if we don't have any children.
+    if(!havekids || curproc->killed){
+      release(&ptable.lock);
+      return -1;
+    }
+
+    // Wait for children to exit.  (See wakeup1 call in proc_exit.)
+    sleep(curproc, &ptable.lock);  //DOC: wait-sleep
+  }
+}
+
+int
+waitreg(int *creationtime, int *runtime, int *waittime, int *sleepingtime, int *terminationtime)
+{
+  struct proc *p;
+  int havekids, pid;
+  struct proc *curproc = myproc();
+  
+  curproc->syscallcounter[3]++;
+  acquire(&ptable.lock);
+  for(;;){
+    // Scan through table looking for exited children.
+    havekids = 0;
+    for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+      if(p->parent != curproc)
+        continue;
+      havekids = 1;
+      if(p->state == ZOMBIE){
+        // Found one.
+        creationtime = p->creationtime;
+        runtime = p->runtime;
+        waittime = p->waittime;
+        sleepingtime = p->sleepingtime;
+        terminationtime = ticks;
+        pid = p->pid;
+        kfree(p->kstack);
+        p->kstack = 0;
+        freevm(p->pgdir);
+        p->pid = 0;
+        p->parent = 0;
+        p->name[0] = 0;
+        p->killed = 0;
+        p->priority = 0;
+        p->sleepingtime = 0;
+        p->runtime = 0;
+        p->waittime = 0;
+        p->creationtime = 0;
+        p->quantumtime = 0;
+        p->queuenum = 0;
+        p->terminationtime = 0;
         p->state = UNUSED;
         release(&ptable.lock);
         return pid;
@@ -361,12 +420,12 @@ scheduler(void)
     // Loop over process table looking for process to run.
     acquire(&ptable.lock);
     for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
-      if (ptable.TMODE == ROUNDROBIN || ptable.TMODE == XV6DEFAULT)
+      if (TMODE == ROUNDROBIN || TMODE == XV6DEFAULT)
       {
         if(p->state != RUNNABLE)
           continue;
       }
-      else if (ptable.TMODE == PRIORITY)
+      else if (TMODE == PRIORITY)
       {
         struct proc *hp = 0;
         struct proc *p1 = 0;
@@ -382,7 +441,7 @@ scheduler(void)
         if(hp != 0)
           p = hp;
       }
-      else if (ptable.TMODE == MLQ)
+      else if (TMODE == MLQ)
       {
         if(p->state != RUNNABLE)
            continue;
@@ -702,11 +761,11 @@ int setQueuenum(int pid, int queuenum)
 
 int getmode(void)
 {
-  return ptable.TMODE;
+  return TMODE;
 }
 
 int changePolicy(int mode)
 {
-  ptable.TMODE = mode;
-  return ptable.TMODE;
+  TMODE = mode;
+  return TMODE;
 }

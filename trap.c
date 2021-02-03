@@ -50,7 +50,6 @@ trap(struct trapframe *tf)
   case T_IRQ0 + IRQ_TIMER:
       if(cpuid() == 0){
         acquire(&tickslock);
-        updatetime();
         if (getmode() == ROUNDROBIN)
         {
           if (myproc()->quantumtime < QUANTUM)
@@ -61,6 +60,7 @@ trap(struct trapframe *tf)
           if (myproc()->quantumtime < QUANTUM)
             myproc()->quantumtime++;
         }
+        updatetime();
         ticks++;
         wakeup(&ticks);
         release(&tickslock);

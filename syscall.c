@@ -109,6 +109,7 @@ extern int sys_getsyscallcounter(void);
 extern int sys_setPriority(void);
 extern int sys_setQueuenum(void);
 extern int sys_changePolicy(void);
+extern int sys_waitreg(void);
 
 static int (*syscalls[])(void) = {
 [SYS_fork]    sys_fork,
@@ -137,7 +138,8 @@ static int (*syscalls[])(void) = {
 [SYS_getsyscallcounter]   sys_getsyscallcounter,
 [SYS_setPriority]   sys_setPriority,
 [SYS_setQueuenum]   sys_setQueuenum,
-[SYS_changePolicy]   sys_changePolicy
+[SYS_changePolicy]   sys_changePolicy,
+[SYS_waitreg]   sys_waitreg
 };
 
 void
