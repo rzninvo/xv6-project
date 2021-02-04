@@ -50,16 +50,6 @@ trap(struct trapframe *tf)
   case T_IRQ0 + IRQ_TIMER:
       if(cpuid() == 0){
         acquire(&tickslock);
-        if (getmode() == ROUNDROBIN)
-        {
-          if (myproc()->quantumtime < QUANTUM)
-            myproc()->quantumtime++;
-        }
-        else if ((getmode() == MLQ) && (myproc()->queuenum == 3))
-        {
-          if (myproc()->quantumtime < QUANTUM)
-            myproc()->quantumtime++;
-        }
         updatetime();
         ticks++;
         wakeup(&ticks);
@@ -113,11 +103,22 @@ trap(struct trapframe *tf)
 
   // Force process to give up CPU on clock tick.
   // If interrupts were on while locks held, would need to check nlock.
-  if(myproc() && myproc()->state == RUNNING &&
-     ((tf->trapno == T_IRQ0+IRQ_TIMER) || (myproc()->quantumtime >= QUANTUM))){
-        myproc()->quantumtime = 0;
-        yield();
-     }
+  if(myproc() && myproc()->state == RUNNING && tf->trapno == T_IRQ0+IRQ_TIMER){
+    if ((getmode() == ROUNDROBIN) || ((getmode() == MLQ) && (myproc()->queuenum == 3)))
+    {
+      if (myproc()->quantumtime < QUANTUM)
+        myproc()->quantumtime++;
+      if (myproc()->quantumtime >= QUANTUM)
+        {
+          myproc()->quantumtime = 0;
+          yield();
+        }
+    } 
+    else{
+      myproc()->quantumtime = 0;
+      yield();
+    }
+  }
 
   // Check if the process has been killed since we yielded
   if(myproc() && myproc()->killed && (tf->cs&3) == DPL_USER)

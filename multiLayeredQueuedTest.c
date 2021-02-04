@@ -3,26 +3,18 @@
 #include "user.h"
 
 struct {
-    int pid, priority, creationtime, runtime, waittime, sleepingtime, terminationtime;
-}pdata[30];
+    int pid, priority, creationtime, runtime, waittime, sleepingtime, terminationtime, queuenum;
+}pdata[40];
 
 int main()
 {
     int creationtimeavg = 0, runtimeavg = 0, waittimeavg = 0, sleepingtimeavg = 0, terminationtimeavg = 0;
-    int queuenum = 0;
-    int child = 0;
-    changePolicy(2);
-    for (int i = 0 ; i < 30; i++)
+    changePolicy(3);
+    for (int i = 0; i < 10; i++)
     {
-        child = i;
         if (fork() == 0)
         {
-            setPriority(getpid(), (child / 5) + 1);
-            for (int j = 1; j <= 250; j++)
-            {
-                printf(1, "\n Counting %d : %d\n", child, j);
-            }
-            exit();
+            
         }
     }
     for (int i = 0; i < 30; i++)

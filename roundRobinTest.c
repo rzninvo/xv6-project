@@ -6,8 +6,8 @@ int main()
 {
     int pid[10], creationtime[10], runtime[10], waittime[10], sleepingtime[10], terminationtime[10];
     int creationtimeavg = 0, runtimeavg = 0, waittimeavg = 0, sleepingtimeavg = 0, terminationtimeavg = 0;
-    int priority = 0;
-    changePolicy(3);
+    int priority = 0, queuenum = 0;
+    changePolicy(1);
     for (int i = 0 ; i < 10; i++)
     {
         if (fork() == 0)
@@ -21,7 +21,8 @@ int main()
     }
     for (int i = 0; i < 10; i++)
     {
-         pid[i] = waitreg(&creationtime[i], &runtime[i], &waittime[i], &sleepingtime[i], &terminationtime[i], &priority);
+         pid[i] = waitreg(&creationtime[i], &runtime[i], &waittime[i], &sleepingtime[i]
+                , &terminationtime[i], &priority, &queuenum);
             creationtimeavg += creationtime[i];
             runtimeavg += runtime[i];
             waittimeavg += waittime[i];

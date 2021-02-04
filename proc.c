@@ -6,6 +6,7 @@
 #include "x86.h"
 #include "proc.h"
 #include "spinlock.h"
+#include "syscall.h"
 
 struct {
   struct spinlock lock;
@@ -200,7 +201,7 @@ fork(void)
   struct proc *curproc = myproc();
 
 
-  curproc->syscallcounter[1]++;
+  curproc->syscallcounter[SYS_fork]++;
 
 
   // Allocate process.
@@ -249,7 +250,8 @@ exit(void)
   struct proc *p;
   int fd;
 
-  curproc->syscallcounter[2]++;
+  curproc->syscallcounter[SYS_exit]++;
+
   for (int i = 0; i < 25; i++)
     curproc->syscallcounter[i] = 0;
   if(curproc == initproc)
@@ -298,7 +300,8 @@ wait(void)
   int havekids, pid;
   struct proc *curproc = myproc();
   
-  curproc->syscallcounter[3]++;
+  curproc->syscallcounter[SYS_wait]++;
+
   acquire(&ptable.lock);
   for(;;){
     // Scan through table looking for exited children.
@@ -344,13 +347,13 @@ wait(void)
 
 int
 waitreg(int *creationtime, int *runtime, int *waittime, int *sleepingtime, int *terminationtime
-, int *priority)
+, int *priority, int *queuenum)
 {
   struct proc *p;
   int havekids, pid;
   struct proc *curproc = myproc();
-  
-  curproc->syscallcounter[3]++;
+  curproc->syscallcounter[SYS_waitreg]++;
+
   acquire(&ptable.lock);
   for(;;){
     // Scan through table looking for exited children.
@@ -367,6 +370,7 @@ waitreg(int *creationtime, int *runtime, int *waittime, int *sleepingtime, int *
         *sleepingtime = p->sleepingtime;
         *terminationtime = ticks;
         *priority = p->priority;
+        *queuenum = p->queuenum;
         pid = p->pid;
         kfree(p->kstack);
         p->kstack = 0;
@@ -625,7 +629,8 @@ kill(int pid)
 {
   struct proc *p;
   struct proc *curproc = myproc();
-  curproc->syscallcounter[6]++;
+
+  curproc->syscallcounter[SYS_kill]++;
 
   acquire(&ptable.lock);
   for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
@@ -699,6 +704,9 @@ void updatetime(void)
 int setPriority(int pid, int priority)
 {
   struct proc *p;
+  struct proc *curproc = myproc();
+
+  curproc->syscallcounter[SYS_setPriority]++;
 
   acquire(&ptable.lock);
   for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
@@ -718,7 +726,9 @@ int setPriority(int pid, int priority)
 int getparentID(void)
 {
   struct proc* curproc = myproc();
-  curproc->syscallcounter[22]++;
+
+  curproc->syscallcounter[SYS_getparentID]++;
+
   return curproc->parent->pid; 
 }
 
@@ -727,7 +737,7 @@ int getchildren(void)
   struct proc* curproc = myproc();
   struct proc* p;
   
-  curproc->syscallcounter[23]++;
+  curproc->syscallcounter[SYS_getchildren]++;
 
   int children = 0;
 
@@ -744,13 +754,16 @@ int getchildren(void)
 int getsyscallcounter(int num)
 {
   struct proc* curproc = myproc();
-  curproc->syscallcounter[24]++;
+  curproc->syscallcounter[SYS_getsyscallcounter]++;
   return (curproc->syscallcounter[num]);
 }
 
 int setQueuenum(int pid, int queuenum)
 {
   struct proc *p;
+  struct proc *curproc = myproc();
+
+  curproc->syscallcounter[SYS_setQueuenum]++;
 
   acquire(&ptable.lock);
   for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
@@ -771,6 +784,8 @@ int getmode(void)
 
 int changePolicy(int mode)
 {
+  struct proc *curproc = myproc();
+  curproc->syscallcounter[SYS_changePolicy]++;
   TMODE = mode;
   return TMODE;
 }
