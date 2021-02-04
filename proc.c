@@ -360,11 +360,11 @@ waitreg(int *creationtime, int *runtime, int *waittime, int *sleepingtime, int *
       havekids = 1;
       if(p->state == ZOMBIE){
         // Found one.
-        creationtime = p->creationtime;
-        runtime = p->runtime;
-        waittime = p->waittime;
-        sleepingtime = p->sleepingtime;
-        terminationtime = ticks;
+        *creationtime = p->creationtime;
+        *runtime = p->runtime;
+        *waittime = p->waittime;
+        *sleepingtime = p->sleepingtime;
+        *terminationtime = ticks;
         pid = p->pid;
         kfree(p->kstack);
         p->kstack = 0;
