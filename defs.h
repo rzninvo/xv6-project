@@ -126,7 +126,7 @@ int             getsyscallcounter(int);
 int             setPriority(int, int);
 int             setQueuenum(int, int);
 int             changePolicy(int);
-int             waitreg(int*, int*, int*, int*, int*);
+int             waitreg(int*, int*, int*, int*, int*, int*);
 
 // swtch.S
 void            swtch(struct context**, struct context*);

@@ -137,7 +137,7 @@ int sys_changePolicy(void)
 }
 int sys_waitreg(void)
 {
-  int *creationtime, *runtime, *waittime, *sleepingtime, *terminationtime;
+  int *creationtime, *runtime, *waittime, *sleepingtime, *terminationtime, *priority;
   if(argptr(0, (void*)&creationtime, sizeof(creationtime)) < 0)
     return -1;
   if(argptr(1, (void*)&runtime, sizeof(runtime)) < 0)
@@ -148,5 +148,7 @@ int sys_waitreg(void)
     return -1;
   if(argptr(4, (void*)&terminationtime, sizeof(terminationtime)) < 0)
     return -1;
-  return waitreg(creationtime, runtime, waittime, sleepingtime, terminationtime);
+  if(argptr(5, (void*)&priority, sizeof(priority)) < 0)
+    return -1;
+  return waitreg(creationtime, runtime, waittime, sleepingtime, terminationtime, priority);
 }

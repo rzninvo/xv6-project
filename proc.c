@@ -343,7 +343,8 @@ wait(void)
 }
 
 int
-waitreg(int *creationtime, int *runtime, int *waittime, int *sleepingtime, int *terminationtime)
+waitreg(int *creationtime, int *runtime, int *waittime, int *sleepingtime, int *terminationtime
+, int *priority)
 {
   struct proc *p;
   int havekids, pid;
@@ -365,6 +366,7 @@ waitreg(int *creationtime, int *runtime, int *waittime, int *sleepingtime, int *
         *waittime = p->waittime;
         *sleepingtime = p->sleepingtime;
         *terminationtime = ticks;
+        *priority = p->priority;
         pid = p->pid;
         kfree(p->kstack);
         p->kstack = 0;
@@ -701,7 +703,10 @@ int setPriority(int pid, int priority)
   acquire(&ptable.lock);
   for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
     if(p->pid == pid) {
-        p->priority = priority;
+        if (priority > 0 && priority <= 6)
+          p->priority = priority;
+        else
+          p->priority = 5;
         break;
     }
   }

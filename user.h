@@ -29,7 +29,7 @@ int getsyscallcounter(int);
 int setPriority(int, int);
 int setQueuenum(int, int);
 int changePolicy(int);
-int waitreg(int*, int*, int*, int*, int*);
+int waitreg(int*, int*, int*, int*, int*, int*);
 
 // ulib.c
 int stat(const char*, struct stat*);
