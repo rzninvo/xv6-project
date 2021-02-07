@@ -14,6 +14,8 @@ int main(int argc, char *argv[])
                     *num = atoi(argv[1]);
                     printf(1,"this is proccess %d and the system call %d was called %d times\n"
                         , getpid(), *num, getsyscallcounter(*num));   
+                    wait();
+                    exit();
                 }
                 else
                 {

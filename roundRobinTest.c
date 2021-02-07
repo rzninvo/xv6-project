@@ -38,5 +38,6 @@ int main()
     printf(1, "\n creationtime AVG = %d\n runtime AVG = %d\n waittime AVG = %d\n sleepingtime AVG = %d\n terminationtime AVG = %d\n", 
                 creationtimeavg / 10, runtimeavg / 10, waittimeavg / 10, 
                     sleepingtimeavg / 10, terminationtimeavg / 10);
+    exit();
     return 0;
 }

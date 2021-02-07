@@ -18,6 +18,8 @@ int main()
                         printf(1,"-");
                 }
                 printf(1,"\n");
+                exit();
             }
+    exit();
     return 0;
 }
