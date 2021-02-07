@@ -723,7 +723,14 @@ int getchildren(char *children)
   {
     if (p->parent->pid == curproc->pid)
     {
-      children[counter] = (char)(p->pid + 48);
+      if (p->pid / 10 == 0)
+        children[counter] = (char)(p->pid + 48);
+      else
+      {
+        children[counter] = (char)((p->pid % 10) + 48);
+        counter++;
+        children[counter] = (char)((p->pid / 10) + 48);
+      }
       counter++;
       children[counter] = '/';
       counter++;
