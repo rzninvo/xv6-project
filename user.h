@@ -24,7 +24,7 @@ char* sbrk(int);
 int sleep(int);
 int uptime(void);
 int getparentID(void);
-int getchildren(void);
+int getchildren(char*);
 int getsyscallcounter(int);
 int setPriority(int, int);
 int setQueuenum(int, int);

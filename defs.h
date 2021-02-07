@@ -121,7 +121,7 @@ int             wait(void);
 void            wakeup(void*);
 void            yield(void);
 int             getparentID(void);
-int             getchildren(void);
+int             getchildren(char*);
 int             getsyscallcounter(int);
 int             setPriority(int, int);
 int             setQueuenum(int, int);

@@ -9,17 +9,9 @@ int main()
             if(fork())
             {
                 printf(1, "This is proccess %d and children are ", getpid());
-                int children = getchildren();
-                while (children != 0)
-                {
-                    printf(1, "%d", children % 10);
-                    children /= 10;
-                    if (children != 0)
-                        printf(1,"-");
-                }
-                printf(1,"\n");
-                exit();
+                char children[200] = " ";
+                getchildren(children);
+                printf(1,"%s\n", children);
             }
-    exit();
     return 0;
 }

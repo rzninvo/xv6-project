@@ -97,7 +97,10 @@ int sys_getparentID(void)
 
 int sys_getchildren(void)
 {
-  return getchildren();
+  char *children;
+  if(argptr(0, (void*)&children, sizeof(children)) < 0)
+    return -1;
+  return getchildren(children);
 }
 
 int sys_getsyscallcounter(void)

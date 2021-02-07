@@ -8,7 +8,8 @@ int main(int argc, char *argv[])
         if (fork()){
             if(fork()){
                 if(fork()){
-                    getchildren();
+                    char children[200] = " ";
+                    getchildren(children);
                     getparentID();
                     int *num;
                     *num = atoi(argv[1]);
